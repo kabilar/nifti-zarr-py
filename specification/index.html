@@ -1,0 +1,2105 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NIfTI-Zarr: Specification for storing NIfTI images in Zarr, and its reference Python implementation.">
+      
+      
+      
+        <link rel="canonical" href="https://kabilar.github.io/nifti-zarr-py/specification/">
+      
+      
+      
+      
+        <link rel="prev" href="./..">
+      
+      
+        <link rel="next" href="../schema/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Specification - NIfTI-Zarr</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="NIfTI-Zarr" class="md-header__button md-logo" aria-label="NIfTI-Zarr" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NIfTI-Zarr
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Specification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/neuroscales/nifti-zarr-py" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    neuroscales/nifti-zarr-py
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="NIfTI-Zarr" class="md-nav__button md-logo" aria-label="NIfTI-Zarr" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    NIfTI-Zarr
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/neuroscales/nifti-zarr-py" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    neuroscales/nifti-zarr-py
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Specification
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Specification
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Abstract
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Table of Content
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        0. References
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Introduction
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-format-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Format specification
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-main-differences-with-nifti-andor-ome-ngff" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Main differences with NIfTI and/or OME-NGFF
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-conversion-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Conversion tables
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-reference-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Reference implementations
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JSON schema
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  API reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../building-the-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Building the docs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="nifti-zarr-draft-specification">NIfTI-Zarr draft specification<a class="headerlink" href="#nifti-zarr-draft-specification" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Status of this document: release candidate</li>
+<li>Editor: Yael Balbastre <y.balbastre at ucl.ac.uk></li>
+<li>Version: 1.0.rc1</li>
+</ul>
+<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<p>This document specifies the nifti-zarr format for storing neuroimaging
+data in the cloud.</p>
+<h2 id="table-of-content">Table of Content<a class="headerlink" href="#table-of-content" title="Permanent link">&para;</a></h2>
+<ol start="0">
+<li><a href="#0-references">References</a></li>
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-format-specification">Format Specification</a></li>
+<li><a href="#3-main-differences-with-nifti-andor-ome-ngff">Main differences with NIfTI and/or OME-NGFF</a></li>
+<li><a href="#4-conversion-tables">Conversion tables</a></li>
+<li><a href="#5-reference-implementations">Reference implementations</a></li>
+</ol>
+<h2 id="0-references">0. References<a class="headerlink" href="#0-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://zarr.readthedocs.io"><strong>Zarr</strong></a> is a format for the storage of
+  chunked, compressed, N-dimensional arrays inspired by HDF5, h5py and bcolz.</li>
+<li><a href="https://ngff.openmicroscopy.org"><strong>OME-NGFF</strong></a> (Next Generation File
+  Format) is a format based on zarr for the storage of biomedical imaging data.</li>
+<li><a href="https://nifti.nimh.nih.gov"><strong>NIfTI</strong></a> (Neuroimaging Informatics
+  Technology Initiative) is a single-file/single-resolution storage format
+  for 3D+ neuroimaging data.</li>
+<li><a href="https://github.com/NeuroJSON/jnifti/tree/master"><strong>JNIfTI</strong></a> is a pure JSON
+  implementation of the NIfTI format.</li>
+<li><a href="https://bids-specification.readthedocs.io"><strong>BIDS</strong></a> (Brain Imaging
+  Data Structure) is a simple and intuitive way to organize and describe data.</li>
+</ul>
+<h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
+<p>As biomedical imaging scales up, it is increasingly making use of remote
+storage, remote computing and remote visualization. Classical file
+formats—which store array data contiguously in a single file—are limited
+at large scales as</p>
+<ol>
+<li>They often do not store data at multiple resolutions;</li>
+<li>They do not offer efficient parallel access to data chunks;</li>
+<li>They do not efficiently compress 3D raster data.</li>
+</ol>
+<p>These limits are very clear when it comes to visualizing very large data
+volumes, which cannot be loaded in memory in full. In this context, it is
+preferable to only load the data required to display a given scene (either
+a large field-of-view at low-resolution, or a small field-of-view at high
+resolution).</p>
+<p>The <a href="https://zarr.readthedocs.io">Zarr</a> format was developed to bypass
+the limitations of single-file formats such as <a href="https://www.hdfgroup.org/">HDF5</a>.
+The microscopy community is currently developping its own standard for
+cloud-friendly biomedical imaging data
+(<a href="https://ngff.openmicroscopy.org">OME-NGFF</a>)—with a Zarr-based implementation—
+and adds rules for storing multi-resolutions images and medical-specific
+metadata such as axis names and voxel sizes. However, this community
+has needs in terms of metadata and coordinate-space description that are
+relatively complex, as they need to conform to different organs, a wide range
+of acquisition systems, and different tissue processing pipelines. This has
+drastically slowed down the adoption of a coordinate transform standard,
+which hampers the use of OME-NGFF with neuroimaging data in two ways:</p>
+<ol>
+<li>at the time of this writing, the current version of the format
+   (<a href="https://ngff.openmicroscopy.org/0.5/index.html">0.5</a>) only handles
+   canonical scales and offsets;</li>
+<li>the coordinate transform standard
+   <a href="https://github.com/ome/ngff/pull/138">being drafted</a> is more flexible
+   than required for pure neuroimaging applications, which may prevent its
+   widespread adoption by the neuroimaging community.</li>
+</ol>
+<p>In contrast, the neuroimaging community has adopted and used a standard
+"world" coordinate frame for decades, where</p>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+x = left      -&gt; right
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>+y = posterior -&gt; anterior
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>+z = inferior  -&gt; superior
+</code></pre></div>
+<p>An affine transform is used to map from  the F-ordered voxel space $(i, j, k)$
+to world space $(x, y, z)$. The neuroimaging community has also created a
+simple data exchange format—<a href="https://nifti.nimh.nih.gov">NIfTI</a>—that is
+widely embraced and is the mandatory file format in standardization
+efforts such as <a href="https://bids-specification.readthedocs.io">BIDS</a>.
+However, the lack of multiresolution and/or chunk support in NIfTI has
+led BIDS to adopt OME-TIFF and OME-ZARR as mandatory formats for its
+microscopy component.</p>
+<p>Let us further add that OME-NGFF is mostly oriented towards microscopy,
+whereas neuroimaging formats focus on magnetic resonance imaging (MRI),
+computed tomography (CT), and/or positon emission tomography (PET).</p>
+<p>The NIfTI-Zarr (<code>nii.zarr</code>) specification attempts to merge the best of
+both worlds, in the simplest possible way. Like NIfTI, it aims to make the
+implementation of I/O libraries as simple as possible, to maximize chances
+that it gets adopted by the community. Its guiding principles are</p>
+<ul>
+<li><strong>OME-Zarr compliant:</strong> any <code>nii.zarr</code> file should be a valid <code>ome.zarr</code> file;</li>
+<li><strong>OME-Zarr minimal:</strong> only implements the minimum set of metadata necessary
+  to describe [multi-resolution] neuroimaging data;</li>
+<li><strong>NIfTI-compliant:</strong> the binary nifti header should be stored in its raw
+  form in an additional <code>nifti</code> zarr array;</li>
+<li><strong>NIfTI-priority:</strong> if metadata conflict across the nifti header and OME
+  attributes, the nifti metadata should take precedence.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul>
+<li>Being OME-NGFF compliant does not mean (for now) that the OME-NGFF
+  transform and the NIfTI transform match. Currently, OME-NGFF only handles
+  scales (for voxel sizes) and translations (for origin shifts caused by
+  pyramid methods). It is therefore impossible to encode an affine tranform -
+  or even swap axes - using the current OME-NGFF specification. What we
+  mean by OME-NGFF compliant is that any OME-NGFF viewer will correctly
+  display the content of the file <em>in scaled voxel space</em>.</li>
+<li>OME-NGFF does not currently offer the possibility to store an intensity
+  transform. This means that OME-NGFF viewers will not use the intensity
+  affine transform encoded by <code>scl_slope</code> and <code>scl_inter</code> in the nifti header.</li>
+<li>That said, the nifti layer added on top of OME-NGFF is light enough that
+  viewer developers may easily extend their software to handle
+  1. an affine geometric tranform, and
+  2. an affine intensity transform.</li>
+<li>In modern languages such as Python and Julia, a virtual array
+  that points to the raw data can easily be encapsulated in a high-level
+  class that applies the intensity transform on the fly. This is
+  examplified in our Python and Julia reference implementations, which
+  respectively leverage <code>nibabel</code>'s <code>Nifti1Image</code> and <code>NIfTI.jl</code>'s <code>NIVolume</code>.</li>
+</ul>
+</div>
+<p>The simplicity of these guiding principles should make the adoption of
+<code>nii.zarr</code> in cloud environments (almost) as straightforward as the adoption
+of compressed-NIfTI (<code>.nii.gz</code>).</p>
+<h2 id="2-format-specification">2. Format specification<a class="headerlink" href="#2-format-specification" title="Permanent link">&para;</a></h2>
+<p>A NIfTI-Zarr file <strong>MUST</strong> be a valid
+<a href="https://ngff.openmicroscopy.org/latest/#image-layout">OME-Zarr multi-resolution image</a>
+(and therefore also a valid
+<a href="https://zarr-specs.readthedocs.io/en/latest/specs.html">Zarr dataset</a>),
+whose directory structure and metadata are described in sections
+<a href="#21-directory-structure">2.1</a>, <a href="#22-multiresolution-metadata">2.2</a> and
+<a href="#23-ome-ngff-metadata">2.3</a>.</p>
+<p>In addition, it <strong>MUST</strong> store the nifti header corresponding to the finest
+level of the pyramid as a Zarr array with the <code>"nifti"</code> key, as described
+in section <a href="#24-nifti-header">2.4</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At the time of this writing, Zarr is at version 3 and OME-NGFF is at
+version 0.5. NIfTI-Zarr being a simple layer within an OME-Zarr object,
+it does not impose a specific Zarr or OME-NGFF version. However, note that
+OME-NGFF v0.4 specifies that it should be used with Zarr v2, while
+OME-NGFF v0.5 specifies that it should be used with Zarr v3.</p>
+<p>Similarly, the NIfTI header may follow the
+<a href="https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h">NIfTI v1</a> or
+<a href="https://nifti.nimh.nih.gov/pub/dist/doc/nifti2.h">NIfTI v2</a>
+specifications.</p>
+<p>All examples below use the OME-NGFF v0.4 + Zarr v2 specification, but
+they could equivalently have used OME-NGFF v0.5 + Zarr v3.</p>
+</div>
+<h3 id="21-directory-structure">2.1. Directory structure<a class="headerlink" href="#21-directory-structure" title="Permanent link">&para;</a></h3>
+<p><strong>REF:</strong>
+- OME-NGFF latest: <a href="https://ngff.openmicroscopy.org/latest/#image-layout">https://ngff.openmicroscopy.org/latest/#image-layout</a>
+- OME-NGFF v0.5: <a href="https://ngff.openmicroscopy.org/0.5/#image-layout">https://ngff.openmicroscopy.org/0.5/#image-layout</a>
+- OME-NGFF v0.4: <a href="https://ngff.openmicroscopy.org/0.4/#image-layout">https://ngff.openmicroscopy.org/0.4/#image-layout</a></p>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>└── mri.nii.zarr              # A NIfTI volume converted to Zarr.
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    ├── .zgroup               # Each volume is a Zarr group, of arrays.
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    ├── .zattrs               # Group level attributes are stored in the .zattrs
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    |                         # file include the OME "multiscales" key.
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    |                         # In addition, the group level attributes
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    │                         # may also contain "_ARRAY_DIMENSIONS" for
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    |                         # compatibility with xarray if this group directly
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    |                         # contains multi-scale arrays.
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    |
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    ├── nifti                 # The NIfTI header is stored as a raw array
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │   ├── .zarray           # of bytes, with an optional JSON form stored in
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    │   ├── .zattrs           # the associated .zattrs file.
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    │   └── 0
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    │
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    ├── 0                     # Each multiscale level is stored as a separate
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    |                         # Zarr array, which is a folder containing chunk
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    │   ...                   # files which compose the array.
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    |
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    └── n                     # The name of the array is arbitrary with the
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        |                     # ordering defined by the "multiscales" metadata,
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        │                     # but is often a sequence starting at 0.
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        │
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        ├── .zarray           # All image arrays must be up to 5-dimensional
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        │                     # with the axis of type time before type channel,
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        |                     # before spatial axes.
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        │
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        └─ t                  # Chunks are stored with the nested directory
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>           └─ c               # layout. All but the last chunk element are stored
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>              └─ z            # as directories. The terminal chunk is a file.
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                 └─ y         # Together the directory and file names provide the
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>                    └─ x      # "chunk coordinate" (t, c, z, y, x), where the
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>                              # maximum coordinate will be dimension_size / chunk_size.
+</code></pre></div>
+<h3 id="22-multiresolution-metadata">2.2. Multiresolution metadata<a class="headerlink" href="#22-multiresolution-metadata" title="Permanent link">&para;</a></h3>
+<p><strong>REF:</strong>
+- Zarr v3: <a href="https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#array-metadata">https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#array-metadata</a>
+- Zarr v2: <a href="https://zarr-specs.readthedocs.io/en/latest/v2/v2.0.html#arrays">https://zarr-specs.readthedocs.io/en/latest/v2/v2.0.html#arrays</a></p>
+<div class="language-yaml highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># {filename}.nii.zarr/{0..n}/.zarray</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p p-Indicator">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="s">"chunks"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1"># Number of time chunks</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1"># Number of channel chunks</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="nv">1000</span><span class="p p-Indicator">,</span><span class="w">               </span><span class="c1"># Number of z chunks</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nv">1000</span><span class="p p-Indicator">,</span><span class="w">               </span><span class="c1"># Number of y chunks</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nv">1000</span><span class="p p-Indicator">,</span><span class="w">               </span><span class="c1"># Number of x chunks</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="p p-Indicator">],</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="s">"compressor"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w">         </span><span class="c1"># Codec used to compress chunks</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">        </span><span class="s">"id"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"blosc"</span><span class="p p-Indicator">,</span><span class="w">      </span><span class="c1"># MUST be "blosc" or "zlib"</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">        </span><span class="s">"cname"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"lz4"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">        </span><span class="s">"clevel"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">        </span><span class="s">"shuffle"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">1</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="s">"dtype"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"&lt;f4"</span><span class="p p-Indicator">,</span><span class="w">         </span><span class="c1"># SHOULD be the compatible with zattrs["nifti"]["DataType"]</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="s">"fill_value"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"NaN"</span><span class="p p-Indicator">,</span><span class="w">    </span><span class="c1"># Value to use for missing chunks</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="s">"order"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"F"</span><span class="p p-Indicator">,</span><span class="w">           </span><span class="c1"># MUST be "F"</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="s">"shape"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w">              </span><span class="c1"># SHOULD be the same as zattrs["nifti"]["Dim"][[3, 4, 2, 1, 0]]</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">        </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1"># T shape</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">        </span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1"># C shape</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">        </span><span class="nv">10000</span><span class="p p-Indicator">,</span><span class="w">              </span><span class="c1"># Z shape</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">        </span><span class="nv">10000</span><span class="p p-Indicator">,</span><span class="w">              </span><span class="c1"># Y shape</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">        </span><span class="nv">10000</span><span class="w">               </span><span class="c1"># X shape</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="p p-Indicator">],</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="s">"zarr_format"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">2</span><span class="w">        </span><span class="c1"># MUST be 2</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="p p-Indicator">}</span>
+</code></pre></div>
+<h3 id="23-ome-ngff-metadata">2.3. OME-NGFF metadata<a class="headerlink" href="#23-ome-ngff-metadata" title="Permanent link">&para;</a></h3>
+<p><strong>REF:</strong>
+- OME-NGFF latest: <a href="https://ngff.openmicroscopy.org/latest/#multiscale-md">https://ngff.openmicroscopy.org/latest/#image-layout</a>
+- OME-NGFF v0.5: <a href="https://ngff.openmicroscopy.org/0.5/#multiscale-md">https://ngff.openmicroscopy.org/0.5/#image-layout</a>
+- OME-NGFF v0.4: <a href="https://ngff.openmicroscopy.org/0.4/#multiscale-md">https://ngff.openmicroscopy.org/0.4/#image-layout</a></p>
+<div class="language-yaml highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># {filename}.nii.zarr/.zattrs</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p p-Indicator">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="s">"multiscales"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">        </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">            </span><span class="s">"version"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"0.4"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">            </span><span class="s">"axes"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">                </span><span class="p p-Indicator">{</span><span class="s">"name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"t"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"time"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"unit"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"second"</span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">                </span><span class="p p-Indicator">{</span><span class="s">"name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"channel"</span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">                </span><span class="p p-Indicator">{</span><span class="s">"name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"z"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"space"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"unit"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"millimeter"</span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">                </span><span class="p p-Indicator">{</span><span class="s">"name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"y"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"space"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"unit"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"millimeter"</span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">                </span><span class="p p-Indicator">{</span><span class="s">"name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"x"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"space"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"unit"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"millimeter"</span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">            </span><span class="p p-Indicator">],</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">            </span><span class="s">"datasets"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">                </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">                    </span><span class="s">"path"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"0"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">                    </span><span class="s">"coordinateTransformations"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[{</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">                        </span><span class="c1"># the voxel size for the first scale level (0.5 millimeter)</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">                        </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"scale"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">                        </span><span class="s">"scale"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">                    </span><span class="p p-Indicator">}]</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">                </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">                </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">                    </span><span class="s">"path"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"1"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">                    </span><span class="s">"coordinateTransformations"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[{</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">                        </span><span class="c1"># the voxel size for the second scale level</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">                        </span><span class="c1"># (downscaled by a factor of 2 -&gt; 1 millimeter)</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">                        </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"scale"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">                        </span><span class="s">"scale"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">                    </span><span class="p p-Indicator">}]</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">                </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">                </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">                    </span><span class="s">"path"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"2"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="w">                    </span><span class="s">"coordinateTransformations"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[{</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">                        </span><span class="c1"># the voxel size for the third scale level</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">                        </span><span class="c1"># (downscaled by a factor of 4 -&gt; 2 millimeter)</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">                        </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"scale"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="w">                        </span><span class="s">"scale"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.0</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="w">                    </span><span class="p p-Indicator">}]</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="w">                </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="w">            </span><span class="p p-Indicator">],</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="w">            </span><span class="s">"coordinateTransformations"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[{</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="w">                </span><span class="c1"># the time unit (0.1 seconds),</span>
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a><span class="w">                </span><span class="c1"># which is the same for each scale level</span>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a><span class="w">                </span><span class="s">"type"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"scale"</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a><span class="w">                </span><span class="s">"scale"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a><span class="w">            </span><span class="p p-Indicator">}],</span>
+<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a><span class="w">        </span><span class="p p-Indicator">}</span>
+<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a><span class="w">    </span><span class="p p-Indicator">]</span>
+<a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p><strong>FUTURE CHANGES:</strong> as soon as affine coordinate transforms are integrated
+into the OME-NGFF standard, it will be used to encode both the NIfTI
+qform and sform as valid OME-NGFF metadata. However, only these two
+transforms will be accepted in a valid NIfTI-Zarr file. None of the
+more advanced combinations of affine and nonlinear transforms will be
+accepted. Similarly, only a very specific set of coordinate spaces will
+be accepted.</p>
+<h3 id="24-nifti-header">2.4. NIfTI header<a class="headerlink" href="#24-nifti-header" title="Permanent link">&para;</a></h3>
+<p><strong>REF</strong>:</p>
+<ul>
+<li>NIfTI v1: <a href="https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h">https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h</a></li>
+<li>NIfTI v2: <a href="https://nifti.nimh.nih.gov/pub/dist/doc/nifti2.h">https://nifti.nimh.nih.gov/pub/dist/doc/nifti2.h</a></li>
+<li>JNIfTI v1: <a href="https://github.com/NeuroJSON/jnifti/blob/master/JNIfTI_specification.md#niftiheader">https://github.com/NeuroJSON/jnifti/blob/master/JNIfTI_specification.md#niftiheader</a></li>
+<li>Zarr v3: <a href="https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#array-metadata">https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#array-metadata</a></li>
+<li>Zarr v2: <a href="https://zarr-specs.readthedocs.io/en/latest/v2/v2.0.html#arrays">https://zarr-specs.readthedocs.io/en/latest/v2/v2.0.html#arrays</a></li>
+</ul>
+<p>The nifti header (<a href="https://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h">v1</a>
+or <a href="https://nifti.nimh.nih.gov/pub/dist/doc/nifti2.h">v2</a>) <strong>MUST</strong> be encoded
+as a single-chunk zarr array if bytes under the <code>nifti</code> key:</p>
+<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>└── mri.nii.zarr
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    │
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    └── nifti                 # The NIfTI header is stored as a raw array
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        ├── .zarray           # of bytes, with an optional JSON form stored in
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        ├── .zattrs           # the associated .zattrs file.
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        └── 0
+</code></pre></div>
+<div class="language-yaml highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># {filename}.nii.zarr/nifti/.zarray</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p p-Indicator">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="s">"zarr_format"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w">       </span><span class="c1"># MUST be 2</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="s">"shape"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">348</span><span class="p p-Indicator">],</span><span class="w">         </span><span class="c1"># MUST be header length if `dtype="u1"` else 1</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="s">"compressor"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="s">"id"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"zlib"</span><span class="p p-Indicator">,</span><span class="w">       </span><span class="c1"># MUST be `{"id": "zlib", "level": 0..9}` or `null`</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="s">"level"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">9</span><span class="w">          </span><span class="c1"># MUST be in 0..9, if "zlib"</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="s">"dtype"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"u1"</span><span class="p p-Indicator">,</span><span class="w">          </span><span class="c1"># MUST be "u1" or "S{length:d}"</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="s">"order"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"C"</span><span class="p p-Indicator">,</span><span class="w">           </span><span class="c1"># UNUSED ("F" or "C")</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="s">"chunks"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">],</span><span class="w">          </span><span class="c1"># MUST be 1</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="s">"fill_value"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">null</span><span class="p p-Indicator">,</span><span class="w">     </span><span class="c1"># UNUSED</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>A JSON version  of the nifti header <strong>MAY</strong> be encoded in the attributes file
+(<code>.zattrs</code> or <code>attrs.json</code>). The JSON version is only provided for
+human-readability. Its values <strong>SHOULD</strong> be compatible with those of the
+binary header. If values conflict between the binary and JSON headers,
+the binary form <strong>MUST</strong> take precedence. The JSON header <strong>MUST</strong> be
+compatible with the <a href="https://github.com/NeuroJSON/jnifti/blob/master/JNIfTI_specification.md#niftiheader"><code>JNIfTI/NIFTIHeader</code></a>
+specification.</p>
+<div class="language-yaml highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># filename.nii.zarr/nifti/.zattrs</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="p p-Indicator">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="c1"># ------------------------------------------------------------------</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="c1"># All other tags **MAY** contain JSON representations of the nifti</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="c1"># header. Not all fields are included. This JSON representation is</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="c1"># OPTIONAL and has a lower priority than the binary header.</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="c1"># ------------------------------------------------------------------</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="s">"NIIFormat"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">b"ni1\0"</span><span class="p p-Indicator">,</span><span class="w">          </span><span class="c1"># MUST be one of "ni1\0", "n+1\0", "ni2\0", "n+2\0"</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="s">"Dim"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">128</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">128</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">128</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">3</span><span class="p p-Indicator">],</span><span class="w">   </span><span class="c1"># SHOULD match filename.nii.zarr/0/.zarray["shape"][[4, 3, 2, 0, 1]]</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="s">"VoxelSize"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w">                  </span><span class="c1"># xtztc unit size, SHOULD be compatible with:</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="nv">1.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.5</span><span class="p p-Indicator">,</span><span class="w">              </span><span class="c1">#   filename.nii.zarr/.zattrs["multiscales"][0]["datasets"][0]["coordinateTransformations"][0]["scale"][2:5][::-1]</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="nv">0.1</span><span class="p p-Indicator">,</span><span class="w">                        </span><span class="c1">#   filename.nii.zarr/.zattrs["multiscales"][0]["coordinateTransformations"][0]["scale"][0]</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">        </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w">                        </span><span class="c1">#   filename.nii.zarr/.zattrs["multiscales"][0]["coordinateTransformations"][0]["scale"][1]</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="p p-Indicator">],</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="s">"Unit"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w">                       </span><span class="c1"># xyzt unit, SHOULD be compatible with:</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">        </span><span class="s">"L"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"mm"</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1">#   filename.nii.zarr/.zattrs["multiscales"][0]["axes"][2:]["unit"]</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">        </span><span class="s">"T"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"s"</span><span class="p p-Indicator">,</span><span class="w">                   </span><span class="c1">#   filename.nii.zarr/.zattrs["multiscales"][0]["axes"][0]["unit"]</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="s">"DataType"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"single"</span><span class="p p-Indicator">,</span><span class="w">           </span><span class="c1"># SHOULD be compatible with filename.nii.zarr/0/.zarray["dtype"]</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">    </span><span class="s">"DimInfo"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">        </span><span class="s">"Freq"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w">                  </span><span class="c1"># MUST be one of {0, 1, 2, 3}</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">        </span><span class="s">"Phase"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w">                 </span><span class="c1"># MUST be one of {0, 1, 2, 3}</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="w">        </span><span class="s">"Slice"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">3</span><span class="w">                  </span><span class="c1"># MUST be one of {0, 1, 2, 3}</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">    </span><span class="s">"Intent"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"dispvec"</span><span class="p p-Indicator">,</span><span class="w">            </span><span class="c1"># MUST be a valid intent code (see table 4.2)</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="w">    </span><span class="s">"Param1"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">None</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="w">    </span><span class="s">"Param2"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">None</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="w">    </span><span class="s">"Param3"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">None</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a><span class="w">    </span><span class="s">"Name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">""</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="w">    </span><span class="s">"ScaleSlope"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="nt">              # Data scaling</span><span class="p">:</span><span class="w"> </span><span class="nv">slope</span>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="w">    </span><span class="nv">"ScaleOffset"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="nt">             # Data scaling</span><span class="p">:</span><span class="w"> </span><span class="nv">intercept</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="w">    </span><span class="nv">"SliceType"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"seq+"</span><span class="p p-Indicator">,</span><span class="w">            </span><span class="c1"># MUST be a valid slice timing code (see table 4.6)</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="w">    </span><span class="s">"FirstSliceID"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0</span><span class="w"> </span><span class="p p-Indicator">,</span><span class="w">             </span><span class="c1"># First slice index</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="w">    </span><span class="s">"LastSliceID"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">127</span><span class="p p-Indicator">,</span><span class="w">             </span><span class="c1"># Last slice index</span>
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a><span class="w">    </span><span class="s">"SliceTime"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w">               </span><span class="c1"># Time for 1 slice.</span>
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="w">    </span><span class="s">"MinIntensity"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w">            </span><span class="c1"># Min display intensity</span>
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a><span class="w">    </span><span class="s">"MaxIntensity"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">1.0</span><span class="p p-Indicator">,</span><span class="w">            </span><span class="c1"># Max display intensity</span>
+<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a><span class="w">    </span><span class="s">"TimeOffset"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="w">              </span><span class="c1"># Time axis shift</span>
+<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a><span class="w">    </span><span class="s">"Description"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"An</span><span class="nv"> </span><span class="s">MRI"</span><span class="p p-Indicator">,</span><span class="w">        </span><span class="c1"># Any text you like</span>
+<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a><span class="w">    </span><span class="s">"AuxFile"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"/path/to/aux"</span><span class="p p-Indicator">,</span><span class="w">      </span><span class="c1"># Auxiliary filename</span>
+<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a><span class="w">    </span><span class="s">"QForm"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w">                     </span><span class="c1"># MUST be a valid xform code (see table 4.5)</span>
+<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a><span class="w">    </span><span class="s">"Quatern"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w">                    </span><span class="c1"># Quaternion</span>
+<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a><span class="w">        </span><span class="s">"b"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">b</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a><span class="w">        </span><span class="s">"c"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">c</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a><span class="w">        </span><span class="s">"d"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">d</span>
+<a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a><span class="w">    </span><span class="s">"QuaternOffset"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w">              </span><span class="c1"># Translation</span>
+<a id="__codelineno-6-49" name="__codelineno-6-49" href="#__codelineno-6-49"></a><span class="w">        </span><span class="s">"x"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">tx</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-50" name="__codelineno-6-50" href="#__codelineno-6-50"></a><span class="w">        </span><span class="s">"y"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">ty</span><span class="p p-Indicator">,</span>
+<a id="__codelineno-6-51" name="__codelineno-6-51" href="#__codelineno-6-51"></a><span class="w">        </span><span class="s">"z"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">tz</span>
+<a id="__codelineno-6-52" name="__codelineno-6-52" href="#__codelineno-6-52"></a><span class="w">    </span><span class="p p-Indicator">},</span>
+<a id="__codelineno-6-53" name="__codelineno-6-53" href="#__codelineno-6-53"></a><span class="w">    </span><span class="s">"SForm"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w">                     </span><span class="c1"># MUST be a valid xform code (see table 4.5)</span>
+<a id="__codelineno-6-54" name="__codelineno-6-54" href="#__codelineno-6-54"></a><span class="w">    </span><span class="s">"Affine"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<a id="__codelineno-6-55" name="__codelineno-6-55" href="#__codelineno-6-55"></a><span class="w">        </span><span class="p p-Indicator">[</span><span class="nv">axx</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">axy</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">axz</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">tx</span><span class="p p-Indicator">],</span><span class="w">        </span><span class="c1"># 1st row affine transform</span>
+<a id="__codelineno-6-56" name="__codelineno-6-56" href="#__codelineno-6-56"></a><span class="w">        </span><span class="p p-Indicator">[</span><span class="nv">ayx</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ayy</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ayz</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ty</span><span class="p p-Indicator">],</span><span class="w">        </span><span class="c1"># 2nd row affine transform</span>
+<a id="__codelineno-6-57" name="__codelineno-6-57" href="#__codelineno-6-57"></a><span class="w">        </span><span class="p p-Indicator">[</span><span class="nv">azx</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">azy</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">azz</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">tz</span><span class="p p-Indicator">],</span><span class="w">        </span><span class="c1"># 3rd row affine transform</span>
+<a id="__codelineno-6-58" name="__codelineno-6-58" href="#__codelineno-6-58"></a><span class="w">    </span><span class="p p-Indicator">]</span>
+<a id="__codelineno-6-59" name="__codelineno-6-59" href="#__codelineno-6-59"></a><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>Some fields <strong>SHOULD</strong> be equivalent to their OME-Zarr counterparts:</p>
+<div class="language-python highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">nifti</span><span class="o">.</span><span class="n">zattrs</span><span class="p">[</span><span class="s2">"Dim"</span><span class="p">]</span>            <span class="o">==</span>  <span class="mf">0.</span><span class="n">zarray</span><span class="p">[</span><span class="s2">"shape"</span><span class="p">][[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>   <span class="c1"># Level 0 zarray</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">nifti</span><span class="o">.</span><span class="n">zattrs</span><span class="p">[</span><span class="s2">"DataType"</span><span class="p">]</span>       <span class="o">==</span>  <span class="o">*.</span><span class="n">zarray</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]</span>                    <span class="c1"># All zarrays</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">nifti</span><span class="o">.</span><span class="n">zattrs</span><span class="p">[</span><span class="s2">"VoxelSize"</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>  <span class="o">==</span>  <span class="n">zattrs</span><span class="p">[</span><span class="s2">"multiscales"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"datasets"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"coordinateTransformations"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"scale"</span><span class="p">][</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">nifti</span><span class="o">.</span><span class="n">zattrs</span><span class="p">[</span><span class="s2">"VoxelSize"</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>   <span class="o">==</span>  <span class="n">zattrs</span><span class="p">[</span><span class="s2">"multiscales"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"coordinateTransformations"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"scale"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">nifti</span><span class="o">.</span><span class="n">zattrs</span><span class="p">[</span><span class="s2">"VoxelSize"</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>   <span class="o">==</span>  <span class="n">zattrs</span><span class="p">[</span><span class="s2">"multiscales"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"coordinateTransformations"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"scale"</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="3-main-differences-with-nifti-andor-ome-ngff">3. Main differences with NIfTI and/or OME-NGFF<a class="headerlink" href="#3-main-differences-with-nifti-andor-ome-ngff" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Following the OME-NGFF specifcation, dimensions are ordered as
+  [T, C, Z, Y, X] (in C order) as opposed to [C, T, Z, Y, X].</li>
+<li>To conform with the NIfTI expectation, on load data should be returned
+  as a [C, T, Z, Y, X] array (in C order; [X, Y, Z, T, C] in F order).</li>
+</ul>
+<h3 id="31-nifti-features-that-are-not-supported-by-nifti-zarr">3.1. NIfTI features that are not supported by NIfTI-Zarr<a class="headerlink" href="#31-nifti-features-that-are-not-supported-by-nifti-zarr" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Any file with more than 5 dimensions</li>
+</ul>
+<h3 id="32-ome-ngff-features-that-are-not-supported-by-nifti-zarr">3.2. OME-NGFF features that are not supported by NIfTI-Zarr<a class="headerlink" href="#32-ome-ngff-features-that-are-not-supported-by-nifti-zarr" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Image collections</li>
+<li>Image with labels</li>
+<li>High-content screening data</li>
+<li>OMERO metadata</li>
+</ul>
+<h2 id="4-conversion-tables">4. Conversion tables<a class="headerlink" href="#4-conversion-tables" title="Permanent link">&para;</a></h2>
+<h3 id="table-41-nifti-header">Table 4.1. NIfTI header<a class="headerlink" href="#table-41-nifti-header" title="Permanent link">&para;</a></h3>
+<p>As a reminder, the nifti1 header has the following structure:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>NIFfI-1 usage</th>
+<th>JNIfTI</th>
+<th>JSON type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>sizeof_hdr</code></td>
+<td><strong>MUST</strong> be 348</td>
+<td><code>"NIIHeaderSize"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>data_type</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75DataTypeName"</code></td>
+<td><code>string</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>db_name</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75DBName"</code></td>
+<td><code>string</code></td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>extents</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75Extends"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>session_error</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75SessionError"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>regular</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75Regular"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>dim_info</code></td>
+<td>MRI slice ordering.</td>
+<td><code>"DimInfo"</code></td>
+<td><code>property</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"DimInfo"/"Freq"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"DimInfo"/"Phase"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"DimInfo"/"Slice"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>short[8]</code></td>
+<td><code>dim</code></td>
+<td>Data array dimensions.</td>
+<td><code>"Dim"</code></td>
+<td><code>array[integer]</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>intent_p1</code></td>
+<td>1st intent parameter.</td>
+<td><code>"Param1"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>intent_p2</code></td>
+<td>2nd intent parameter.</td>
+<td><code>"Param2"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>intent_p3</code></td>
+<td>3rd intent parameter.</td>
+<td><code>"Param3"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>intent_code</code></td>
+<td><code>NIFTI_INTENT_*</code> code.</td>
+<td><code>"Intent"</code></td>
+<td><code>[integer, string]</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>datatype</code></td>
+<td>Defines data type!</td>
+<td><code>"DataType"</code></td>
+<td><code>[integer, string]</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>bitpix</code></td>
+<td>Number bits/voxel.</td>
+<td><code>"BitDepth"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>slice_start</code></td>
+<td>First slice index.</td>
+<td><code>"FirstSliceID"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>float[8]</code></td>
+<td><code>pixdim</code></td>
+<td>Grid spacings.</td>
+<td><code>"VoxelSize"</code></td>
+<td><code>array[number]</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Orientation"</code></td>
+<td><code>property</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Orientation"/"x"</code></td>
+<td><code>enum: ["l", "r", "a", "p", "i", "s"]</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Orientation"/"y"</code></td>
+<td><code>enum: ["l", "r", "a", "p", "i", "s"]</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Orientation"/"z"</code></td>
+<td><code>enum: ["l", "r", "a", "p", "i", "s"]</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>vox_offset</code></td>
+<td>Offset into .nii file</td>
+<td><code>"NIIByteOffset"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>scl_slope</code></td>
+<td>Data scaling: slope.</td>
+<td><code>"ScaleSlope"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>scl_inter</code></td>
+<td>Data scaling: offset.</td>
+<td><code>"ScaleOffset"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>slice_end</code></td>
+<td>Last slice index.</td>
+<td><code>"LastSliceID"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>slice_code</code></td>
+<td>Slice timing order.</td>
+<td><code>"SliceType"</code></td>
+<td><code>[integer, string]</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>xyzt_units</code></td>
+<td>Units of <code>pixdim[1..4]</code></td>
+<td><code>"Unit"</code></td>
+<td><code>property</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Unit"/"L"</code></td>
+<td><code>[integer, string]</code></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>"Unit"/"T"</code></td>
+<td><code>[integer, string]</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>cal_max</code></td>
+<td>Max display intensity</td>
+<td><code>"MaxIntensity"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>cal_min</code></td>
+<td>Min display intensity</td>
+<td><code>"MinIntensity"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>slice_duration</code></td>
+<td>Time for 1 slice.</td>
+<td><code>"SliceTime"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>toffset</code></td>
+<td>Time axis shift.</td>
+<td><code>"TimeOffset"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>glmax</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75GlobalMax"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>glmin</code></td>
+<td><del>UNUSED</del></td>
+<td><code>"A75GlobalMin"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>char[80]</code></td>
+<td><code>descrip</code></td>
+<td>any text you like.</td>
+<td><code>"Description"</code></td>
+<td><code>string</code></td>
+</tr>
+<tr>
+<td><code>char[24]</code></td>
+<td><code>aux_file</code></td>
+<td>auxiliary filename.</td>
+<td><code>"AuxFile"</code></td>
+<td><code>string</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>qform_code</code></td>
+<td><code>NIFTI_XFORM_*</code> code.</td>
+<td><code>"QForm"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>sform_code</code></td>
+<td><code>NIFTI_XFORM_*</code> code.</td>
+<td><code>"SForm"</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>quatern_b</code></td>
+<td>Quaternion b param.</td>
+<td><code>"Quatern"/"b"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>quatern_c</code></td>
+<td>Quaternion c param.</td>
+<td><code>"Quatern"/"c"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>quatern_d</code></td>
+<td>Quaternion d param.</td>
+<td><code>"Quatern"/"d"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>qoffset_x</code></td>
+<td>Quaternion x shift.</td>
+<td><code>"QuaternOffset"/"x"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>qoffset_y</code></td>
+<td>Quaternion y shift.</td>
+<td><code>"QuaternOffset"/"y"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>qoffset_z</code></td>
+<td>Quaternion z shift.</td>
+<td><code>"QuaternOffset"/"z"</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td><code>float[4]</code></td>
+<td><code>srow_x</code></td>
+<td>1st row affine transform.</td>
+<td><code>"Affine"/[0]</code></td>
+<td><code>array[number]</code></td>
+</tr>
+<tr>
+<td><code>float[4]</code></td>
+<td><code>srow_y</code></td>
+<td>2nd row affine transform.</td>
+<td><code>"Affine"/[1]</code></td>
+<td><code>array[number]</code></td>
+</tr>
+<tr>
+<td><code>float[4]</code></td>
+<td><code>srow_z</code></td>
+<td>3rd row affine transform.</td>
+<td><code>"Affine"/[2]</code></td>
+<td><code>array[number]</code></td>
+</tr>
+<tr>
+<td><code>char[16]</code></td>
+<td><code>intent_name</code></td>
+<td>'name' or meaning of data.</td>
+<td><code>"Name"</code></td>
+<td><code>string</code></td>
+</tr>
+<tr>
+<td><code>char[4]</code></td>
+<td><code>magic</code></td>
+<td><strong>MUST</strong> be <code>"ni1\0"</code> or <code>"n+1\0"</code>.</td>
+<td><code>"NIIFormat"</code></td>
+<td><code>string</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-42-data-types">Table 4.2. Data types<a class="headerlink" href="#table-42-data-types" title="Permanent link">&para;</a></h3>
+<p>In Zarr, the byte order <strong>MUST</strong> be specified by prepending one of
+<code>{"|", "&lt;", "&gt;"}</code> to the data type string.</p>
+<table>
+<thead>
+<tr>
+<th>Data type</th>
+<th>NIfTI</th>
+<th>Zarr</th>
+<th>JNIfTI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uint8</code></td>
+<td><code>2</code></td>
+<td><code>"&vert;u1"</code></td>
+<td><code>"uint8"</code></td>
+</tr>
+<tr>
+<td><code>int16</code></td>
+<td><code>4</code></td>
+<td><code>"i2"</code></td>
+<td><code>"int16"</code></td>
+</tr>
+<tr>
+<td><code>int32</code></td>
+<td><code>8</code></td>
+<td><code>"i4"</code></td>
+<td><code>"int32"</code></td>
+</tr>
+<tr>
+<td><code>float32</code></td>
+<td><code>16</code></td>
+<td><code>"f4"</code></td>
+<td><code>"single"</code></td>
+</tr>
+<tr>
+<td><code>complex64</code></td>
+<td><code>32</code></td>
+<td><code>"c8"</code></td>
+<td><code>"complex64"</code></td>
+</tr>
+<tr>
+<td><code>float64</code></td>
+<td><code>64</code></td>
+<td><code>"f8"</code></td>
+<td><code>"double"</code></td>
+</tr>
+<tr>
+<td><code>rgb24</code></td>
+<td><code>128</code></td>
+<td><code>[["r", "&vert;u1"], ["g", "&vert;u1"], ["b", "&vert;u1"]]</code></td>
+<td><code>"rgb24"</code></td>
+</tr>
+<tr>
+<td><code>int8</code></td>
+<td><code>256</code></td>
+<td><code>"&vert;i1"</code></td>
+<td><code>"int8"</code></td>
+</tr>
+<tr>
+<td><code>uint16</code></td>
+<td><code>512</code></td>
+<td><code>"u2"</code></td>
+<td><code>"uint16"</code></td>
+</tr>
+<tr>
+<td><code>uint32</code></td>
+<td><code>768</code></td>
+<td><code>"u4"</code></td>
+<td><code>"uint32"</code></td>
+</tr>
+<tr>
+<td><code>int64</code></td>
+<td><code>1024</code></td>
+<td><code>"i8"</code></td>
+<td><code>"int64"</code></td>
+</tr>
+<tr>
+<td><code>uint64</code></td>
+<td><code>1280</code></td>
+<td><code>"u8"</code></td>
+<td><code>"uint64"</code></td>
+</tr>
+<tr>
+<td><code>float128</code></td>
+<td><code>1536</code></td>
+<td><code>"f16"</code></td>
+<td><code>"double128"</code></td>
+</tr>
+<tr>
+<td><code>complex128</code></td>
+<td><code>1792</code></td>
+<td><code>"c16"</code></td>
+<td><code>"complex128"</code></td>
+</tr>
+<tr>
+<td><code>complex256</code></td>
+<td><code>2048</code></td>
+<td><code>"c32"</code></td>
+<td><code>"complex256"</code></td>
+</tr>
+<tr>
+<td><code>rgba32</code></td>
+<td><code>2304</code></td>
+<td><code>[["r", "&vert;u1"], ["g", "&vert;u1"], ["b", "&vert;u1"], ["a", "&vert;u1"]]</code></td>
+<td><code>"rgba32"</code></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td>🛑 unsupported!</td>
+<td><code>"&vert;b1"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>timedelta</code></td>
+<td>🛑 unsupported!</td>
+<td><code>"m8[{unit}]"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>🛑 unsupported!</td>
+<td><code>"M8[{unit}]"</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-43-units">Table 4.3. Units<a class="headerlink" href="#table-43-units" title="Permanent link">&para;</a></h3>
+<p>In OME-NGFF, units must be names from the UDUNITS-2 database.</p>
+<table>
+<thead>
+<tr>
+<th>Unit</th>
+<th>NIfTI</th>
+<th>UDUNITS-2</th>
+<th>OME-NGFF axis</th>
+<th>JNIfTI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unknown</td>
+<td><code>0</code></td>
+<td><code>""</code></td>
+<td></td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td>meter</td>
+<td><code>1</code></td>
+<td><code>"meter"</code></td>
+<td><code>"space"</code></td>
+<td><code>"m"</code></td>
+</tr>
+<tr>
+<td>millimeter</td>
+<td><code>2</code></td>
+<td><code>"millimeter"</code></td>
+<td><code>"space"</code></td>
+<td><code>"mm"</code></td>
+</tr>
+<tr>
+<td>micron</td>
+<td><code>3</code></td>
+<td><code>"micrometer"</code></td>
+<td><code>"space"</code></td>
+<td><code>"um"</code></td>
+</tr>
+<tr>
+<td>second</td>
+<td><code>8</code></td>
+<td><code>"second"</code></td>
+<td><code>"time"</code></td>
+<td><code>"s"</code></td>
+</tr>
+<tr>
+<td>millisecond</td>
+<td><code>16</code></td>
+<td><code>"millisecond"</code></td>
+<td><code>"time"</code></td>
+<td><code>"ms"</code></td>
+</tr>
+<tr>
+<td>microsecond</td>
+<td><code>24</code></td>
+<td><code>"microsecond"</code></td>
+<td><code>"time"</code></td>
+<td><code>"us"</code></td>
+</tr>
+<tr>
+<td>hertz</td>
+<td><code>32</code></td>
+<td><code>"hertz"</code></td>
+<td><code>"channel"</code></td>
+<td><code>"hz"</code></td>
+</tr>
+<tr>
+<td>ppm</td>
+<td><code>40</code></td>
+<td><code>"micro"</code></td>
+<td><code>"channel"</code></td>
+<td><code>"ppm"</code></td>
+</tr>
+<tr>
+<td>rad</td>
+<td><code>48</code></td>
+<td><code>"radian"</code></td>
+<td><code>"channel"</code></td>
+<td><code>"rad/s"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-44-intents">Table 4.4. Intents<a class="headerlink" href="#table-44-intents" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Intent</th>
+<th>NIfTI</th>
+<th>JNIfTI</th>
+<th><code>len(intent_p)</code></th>
+<th>Intent parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td><code>0</code></td>
+<td><code>"none"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Correlation coefficient R</td>
+<td><code>2</code></td>
+<td><code>"corr"</code></td>
+<td><code>1</code></td>
+<td>[dof]</td>
+</tr>
+<tr>
+<td>Student t statistic</td>
+<td><code>3</code></td>
+<td><code>"ttest"</code></td>
+<td><code>1</code></td>
+<td>[dof]</td>
+</tr>
+<tr>
+<td>Fisher F statistic</td>
+<td><code>4</code></td>
+<td><code>"ftest"</code></td>
+<td><code>2</code></td>
+<td>[num dof, den dof]</td>
+</tr>
+<tr>
+<td>Standard normal</td>
+<td><code>5</code></td>
+<td><code>"zscore"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Chi-squared</td>
+<td><code>6</code></td>
+<td><code>"chi2"</code></td>
+<td><code>1</code></td>
+<td>[dof]</td>
+</tr>
+<tr>
+<td>Beta distribution</td>
+<td><code>7</code></td>
+<td><code>"beta"</code></td>
+<td><code>2</code></td>
+<td>[a, b]</td>
+</tr>
+<tr>
+<td>Binomial distribution</td>
+<td><code>8</code></td>
+<td><code>"binomial"</code></td>
+<td><code>2</code></td>
+<td>[nb trials, prob per trial]</td>
+</tr>
+<tr>
+<td>Gamma distribution</td>
+<td><code>9</code></td>
+<td><code>"gamma"</code></td>
+<td><code>2</code></td>
+<td>[shape, scale]</td>
+</tr>
+<tr>
+<td>Poisson distribution</td>
+<td><code>10</code></td>
+<td><code>"poisson"</code></td>
+<td><code>1</code></td>
+<td>[mean]</td>
+</tr>
+<tr>
+<td>Normal distribution</td>
+<td><code>11</code></td>
+<td><code>"normal"</code></td>
+<td><code>2</code></td>
+<td>[mean, standard deviation]</td>
+</tr>
+<tr>
+<td>Noncentral F statistic</td>
+<td><code>12</code></td>
+<td><code>"ncftest"</code></td>
+<td><code>3</code></td>
+<td>[num dof, den dof, num noncentrality]</td>
+</tr>
+<tr>
+<td>Noncentral chi-squared statistic</td>
+<td><code>13</code></td>
+<td><code>"ncchi2"</code></td>
+<td><code>2</code></td>
+<td>[dof, noncentrality]</td>
+</tr>
+<tr>
+<td>Logistic distribution</td>
+<td><code>14</code></td>
+<td><code>"logistic"</code></td>
+<td><code>2</code></td>
+<td>[location, scale]</td>
+</tr>
+<tr>
+<td>Laplace distribution</td>
+<td><code>15</code></td>
+<td><code>"laplace"</code></td>
+<td><code>2</code></td>
+<td>[location, scale]</td>
+</tr>
+<tr>
+<td>Uniform distribution</td>
+<td><code>16</code></td>
+<td><code>"uniform"</code></td>
+<td><code>2</code></td>
+<td>[lower end, upper end]</td>
+</tr>
+<tr>
+<td>Noncentral t statistic</td>
+<td><code>17</code></td>
+<td><code>"ncttest"</code></td>
+<td><code>2</code></td>
+<td>[dof, noncentrality]</td>
+</tr>
+<tr>
+<td>Weibull distribution</td>
+<td><code>18</code></td>
+<td><code>"weibull"</code></td>
+<td><code>3</code></td>
+<td>[location, scale, power]</td>
+</tr>
+<tr>
+<td>Chi distribution</td>
+<td><code>19</code></td>
+<td><code>"chi"</code></td>
+<td><code>1</code></td>
+<td>[dof]</td>
+</tr>
+<tr>
+<td>Inverse Gaussian</td>
+<td><code>20</code></td>
+<td><code>"invgauss"</code></td>
+<td><code>2</code></td>
+<td>[mu, lambda]</td>
+</tr>
+<tr>
+<td>Extreme value type I</td>
+<td><code>21</code></td>
+<td><code>"extval"</code></td>
+<td><code>2</code></td>
+<td>[location, scale]</td>
+</tr>
+<tr>
+<td>Data is a 'p-value'</td>
+<td><code>22</code></td>
+<td><code>"pvalue"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Data is ln(p-value)</td>
+<td><code>23</code></td>
+<td><code>"logpvalue"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Data is log10(p-value)</td>
+<td><code>24</code></td>
+<td><code>"log10pvalue"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Parameter estimate</td>
+<td><code>1001</code></td>
+<td><code>"estimate"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Index into set of labels</td>
+<td><code>1002</code></td>
+<td><code>"label"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Index into NeuroNames set</td>
+<td><code>1003</code></td>
+<td><code>"neuronames"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>MxN matrix at each voxel</td>
+<td><code>1004</code></td>
+<td><code>"matrix"</code></td>
+<td><code>2</code></td>
+<td>[M, N]</td>
+</tr>
+<tr>
+<td>NxN matrix at each voxel</td>
+<td><code>1005</code></td>
+<td><code>"symmatrix"</code></td>
+<td><code>1</code></td>
+<td>[N]</td>
+</tr>
+<tr>
+<td>Displacement field</td>
+<td><code>1006</code></td>
+<td><code>"dispvec"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Vector field</td>
+<td><code>1007</code></td>
+<td><code>"vector"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Spatial coordinate</td>
+<td><code>1008</code></td>
+<td><code>"point"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Triangle (3 indices)</td>
+<td><code>1009</code></td>
+<td><code>"triangle"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Quaternion (4 values)</td>
+<td><code>1010</code></td>
+<td><code>"quaternion"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Dimensionless value</td>
+<td><code>1011</code></td>
+<td><code>"unitless"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Gifti time series</td>
+<td><code>2001</code></td>
+<td><code>"tseries"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Gifti node index</td>
+<td><code>2002</code></td>
+<td><code>"elem"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Gifti RGB (3 values)</td>
+<td><code>2003</code></td>
+<td><code>"rgb"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Gifti RGBA (4 values)</td>
+<td><code>2004</code></td>
+<td><code>"rgba"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+<tr>
+<td>Gifti shape</td>
+<td><code>2005</code></td>
+<td><code>"shape"</code></td>
+<td><code>0</code></td>
+<td>[]</td>
+</tr>
+</tbody>
+</table>
+<p>Additional FSL codes:</p>
+<table>
+<thead>
+<tr>
+<th>Intent</th>
+<th>NIfTI</th>
+<th>JNIfTI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FSL displacement field</td>
+<td><code>2006</code></td>
+<td><code>"FSL_FNIRT_DISPLACEMENT_FIELD"</code></td>
+</tr>
+<tr>
+<td>FSL cubic spline</td>
+<td><code>2007</code></td>
+<td><code>"FSL_CUBIC_SPLINE_COEFFICIENTS"</code></td>
+</tr>
+<tr>
+<td>FSL DCT coefficients</td>
+<td><code>2008</code></td>
+<td><code>"FSL_DCT_COEFFICIENTS"</code></td>
+</tr>
+<tr>
+<td>FSL quad spline</td>
+<td><code>2009</code></td>
+<td><code>"FSL_QUADRATIC_SPLINE_COEFFICIENTS"</code></td>
+</tr>
+<tr>
+<td>FSL-TOPUP cubic spline</td>
+<td><code>2016</code></td>
+<td><code>"FSL_TOPUP_CUBIC_SPLINE_COEFFICIENTS"</code></td>
+</tr>
+<tr>
+<td>FSL-TOPUP quad spline</td>
+<td><code>2017</code></td>
+<td><code>"FSL_TOPUP_QUADRATIC_SPLINE_COEFFICIENTS"</code></td>
+</tr>
+<tr>
+<td>FSL-TOPUP field</td>
+<td><code>2018</code></td>
+<td><code>"FSL_TOPUP_FIELD"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-45-xforms">Table 4.5. Xforms<a class="headerlink" href="#table-45-xforms" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Transform</th>
+<th>NIfTI</th>
+<th>JNIfTI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unknown</td>
+<td><code>0</code></td>
+<td><code>"unknown"</code></td>
+</tr>
+<tr>
+<td>Scanner</td>
+<td><code>1</code></td>
+<td><code>"scanner"</code></td>
+</tr>
+<tr>
+<td>Aligned</td>
+<td><code>2</code></td>
+<td><code>"aligned"</code></td>
+</tr>
+<tr>
+<td>Talairach</td>
+<td><code>3</code></td>
+<td><code>"talairach"</code></td>
+</tr>
+<tr>
+<td>MNI</td>
+<td><code>4</code></td>
+<td><code>"mni"</code></td>
+</tr>
+<tr>
+<td>Template</td>
+<td><code>5</code></td>
+<td><code>"template"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-46-slice-order">Table 4.6. Slice order<a class="headerlink" href="#table-46-slice-order" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>NIfTI</th>
+<th>JNIfTI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unknown</td>
+<td><code>0</code></td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td>Sequential increasing</td>
+<td><code>1</code></td>
+<td><code>"seq+"</code></td>
+</tr>
+<tr>
+<td>Sequential decreasing</td>
+<td><code>2</code></td>
+<td><code>"seq-"</code></td>
+</tr>
+<tr>
+<td>alternating increasing</td>
+<td><code>3</code></td>
+<td><code>"alt+"</code></td>
+</tr>
+<tr>
+<td>alternating decreasing</td>
+<td><code>4</code></td>
+<td><code>"alt-"</code></td>
+</tr>
+<tr>
+<td>alternating increasing #2</td>
+<td><code>5</code></td>
+<td><code>"alt2+"</code></td>
+</tr>
+<tr>
+<td>alternating decreasing #2</td>
+<td><code>6</code></td>
+<td><code>"alt2-"</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-reference-implementations">5. Reference implementations<a class="headerlink" href="#5-reference-implementations" title="Permanent link">&para;</a></h2>
+<p>Reference software to convert data between <code>.nii[.gz]</code> and <code>.nii.zarr</code>
+is provided.</p>
+<h3 id="51-python">5.1. <a href="https://github.com/neuroscales/nifti-zarr-py">Python</a><a class="headerlink" href="#51-python" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">niizarr</span><span class="w"> </span><span class="kn">import</span> <span class="n">nii2zarr</span><span class="p">,</span> <span class="n">zarr2nii</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># convert from nii.gz to nii.zarr</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">nii2zarr</span><span class="p">(</span><span class="s1">'/path/to/mri.nii.gz'</span><span class="p">,</span> <span class="s1">'/path/to/mri.nii.zarr'</span><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># convert from nii.zarr to nii.gz</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># The pyramid level can be selected with `level=L`, where 0 is the</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># base/finest level.</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">zarr2nii</span><span class="p">(</span><span class="s1">'/path/to/mri.nii.zarr'</span><span class="p">,</span> <span class="s1">'/path/to/mri.nii.gz'</span><span class="p">)</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="n">zarr2nii</span><span class="p">(</span><span class="s1">'/path/to/mri.nii.zarr'</span><span class="p">,</span> <span class="s1">'/path/to/mri_2x.nii.gz'</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1"># Encapsulate a nifti-zarr into a nibabel.Nifti1Image object, whose</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c1"># dataobj is a dask array</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="n">img</span> <span class="o">=</span> <span class="n">zarr2nii</span><span class="p">(</span><span class="s1">'/path/to/mri.nii.zarr'</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="52-julia">5.2. <a href="https://github.com/neuroscales/NIfTIZarr.jl">Julia</a><a class="headerlink" href="#52-julia" title="Permanent link">&para;</a></h3>
+<div class="language-julia highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">import</span><span class="w"> </span><span class="n">NIfTIZarr</span><span class="o">:</span><span class="w"> </span><span class="n">nii2zarr</span><span class="p">,</span><span class="w"> </span><span class="n">zarr2nii</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c"># convert from nii.gz to nii.zarr</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">nii2zarr</span><span class="p">(</span><span class="s">"path/to/nifti.nii.gz"</span><span class="p">,</span><span class="w"> </span><span class="s">"s3://path/to/bucket"</span><span class="p">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c"># convert from nii.zarr to nii.gz</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c"># The pyramid level can be selected with `level=L`, where 0 is the</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c"># base/finest level.</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="n">zarr2nii</span><span class="p">(</span><span class="s">"/path/to/mri.nii.zarr"</span><span class="p">,</span><span class="w"> </span><span class="s">"/path/to/mri.nii.gz"</span><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">zarr2nii</span><span class="p">(</span><span class="s">"/path/to/mri.nii.zarr"</span><span class="p">,</span><span class="w"> </span><span class="s">"/path/to/mri_2x.nii.gz"</span><span class="p">;</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c"># Encapsulate a nifti-zarr into a NIVolume object, whose</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c"># raw data is a DiskArray</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zarr2nii</span><span class="p">(</span><span class="s">"s3://path/to/bucket"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="53-ngtools">5.3. <a href="https://github.com/neuroscales/ngtools">NGtools</a><a class="headerlink" href="#53-ngtools" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://github.com/neuroscales/ngtools"><code>ngtools</code></a> package allows
+NIfTI-Zarr files to be properly oriented and displayed in
+<a href="https://github.com/google/neuroglancer"><code>neuroglancer</code></a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="./.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../schema/" class="md-footer__link md-footer__link--next" aria-label="Next: JSON schema">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                JSON schema
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.code.copy","navigation.footer","navigation.top","search.highlight","toc.follow","toc.integrate"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+    
+  </body>
+</html>
